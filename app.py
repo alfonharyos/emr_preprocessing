@@ -107,7 +107,8 @@ if uploaded_file != None:
     if 'df_pp' in st.session_state: 
         with st.spinner('Wait for display...'):
             df_emr_pp = st.session_state.df_pp
-            AgGrid(df_emr_pp[[st.session_state.keluhan,'extract_gejala']].astype(str).reset_index(), theme='streamlit')
+#             AgGrid(df_emr_pp[[st.session_state.keluhan,'extract_gejala']].astype(str).reset_index(), theme='streamlit')
+            st.dataframe(df_emr_pp[[st.session_state.keluhan,'extract_gejala']].astype(str).reset_index())
 
         st.download_button(
             label="Download Data",
