@@ -8,6 +8,7 @@ from st_aggrid import AgGrid
 PAGE_CONFIG = {"page_title":"EMR-Preprocessing-App", "page_icon":"hospital", "layout":"wide"}
 st.set_page_config(**PAGE_CONFIG)
 
+@st.cache()
 def up_file(uploaded_file):
     with st.spinner('Wait for it...'):
         if uploaded_file.name[-3:] == 'csv':
@@ -19,6 +20,7 @@ def up_file(uploaded_file):
         df = df.astype(str)
     return df, typ
 
+@st.cache()
 def update_counter():
         st.session_state.keluhan = st.session_state.col
         st.session_state.param_sakit = st.session_state.sakit
@@ -26,6 +28,7 @@ def update_counter():
         st.session_state.param_akhir = st.session_state.akhir
         st.session_state.param_neg = st.session_state.neg
 
+@st.cache()
 def convert_df(df, type):
     if type == 'csv':
         df = df.to_csv().encode('utf-8')
