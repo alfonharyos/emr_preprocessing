@@ -4,7 +4,8 @@ import xlsxwriter
 import openpyxl
 from filter_emr.filter import preprocess as pp
 from io import BytesIO
-from st_aggrid import AgGrid
+from st_aggrid import AgGrid, GridOptionsBuilder, GridUpdateMode
+
 
 PAGE_CONFIG = {"page_title":"EMR-Preprocessing-App", "page_icon":"hospital", "layout":"wide"}
 st.set_page_config(**PAGE_CONFIG)
@@ -22,6 +23,18 @@ def up_file(uploaded_file):
             typ = 'xlsx'
         df = df.astype(str)
     return df, typ
+
+def display_table(df: pd.DataFrame) -> AgGrid:
+    # Configure AgGrid options
+    gb = GridOptionsBuilder.from_dataframe(df)
+    gb.configure_pagination(enabled=True,)
+    gb.configure_selection('single')
+    return AgGrid(
+        df,
+        gridOptions=gb.build(), theme='streamlit',
+        # this override the default VALUE_CHANGED
+        update_mode=GridUpdateMode.MODEL_CHANGED
+        )
 
 def update_counter():
         st.session_state.keluhan = st.session_state.col
@@ -49,21 +62,16 @@ uploaded_file = st.file_uploader('Choose EMR file',
                                 type=['csv','xlsx', 'xls'],
                                 accept_multiple_files=False)
 
-if uploaded_file != None:   
+if uploaded_file:   
+
     if 'df_up' not in st.session_state:
         st.session_state.df_up, st.session_state.data_type = up_file(uploaded_file)
-
+        
     st.header('EMR Display')
     with st.spinner('Wait for display...'):
-        if 'extract_gejala' in st.session_state.df_up.columns: 
-            AgGrid(st.session_state.df_up.\
-                    drop(['extract_gejala'], axis=1).\
-                    reset_index(), theme='streamlit')
-
-        else: 
-            AgGrid(st.session_state.df_up.\
-                    reset_index(), theme='streamlit')
-
+        display_table(st.session_state.df_up.reset_index())
+    
+        
     # preprocessing
     if 'keluhan' not in st.session_state:
         st.session_state.keluhan = None
@@ -118,14 +126,10 @@ if uploaded_file != None:
     if 'df_pp' in st.session_state: 
         with st.spinner('Wait for display...'):
             df_emr_pp = st.session_state.df_pp
-            AgGrid(df_emr_pp[[st.session_state.keluhan,'extract_gejala']].astype(str).reset_index(), theme='streamlit')
-            
+            display_table(df_emr_pp[[st.session_state.keluhan,'extract_gejala']].astype(str).reset_index())
+
         st.download_button(
             label="Download Data",
             data=st.session_state.dl_data,
             file_name='EMR_preprocessing.'+st.session_state.data_type
         )
-
-else:
-    st.warning('you need to upload a csv or excel file.')
-    
