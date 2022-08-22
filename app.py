@@ -62,33 +62,32 @@ if uploaded_file != None:
         st.session_state.param_awal = 'diagnosa;keluhan;dengan;riwayat;kontrol'
         st.session_state.param_akhir = 'sejak;+'
         st.session_state.param_neg = 'tidak;-'   
-    try:
-        with st.form(key='my_form'):
-            st.selectbox(   label='Pilih column keluhan pasien',
-                            options=[None]+st.session_state.df_up.columns.tolist(),
-                            help='Pilih column yang akan diekstrak',
-                            index=0, key='col')
-            st.write('Parameter (default)')
-            with st.expander("Merubah Nilai Parameter"):
-                st.text_input(  label='Parameter Sakit',
-                                value=st.session_state.param_sakit,
-                                help='Perameter sakit: tanda/kata yang mewakili target/gejala', 
-                                key='sakit')
-                st.text_input(  label='Parameter Awal', 
-                                value=st.session_state.param_awal,
-                                help='Perameter awal: tanda/kata yang letaknya berada sebelum target/gejala', 
-                                key='awal')
-                st.text_input(  label='Parameter Akhir', 
-                                value=st.session_state.param_akhir,
-                                help='Perameter akhir: tanda/kata yang letaknya berada setelah target/gejala', 
-                                key='akhir')
-                st.text_input(  label='Parameter Negatif', 
-                                value=st.session_state.param_neg,
-                                help='tanda/kata yang menandakan bahwa pasien tidak memiliki gejala',
-                                key='neg')
-            submit = st.form_submit_button(label='Extract', on_click=update_counter)
-    except ValueError:
-        st.warning('Pilih Kolom Keluhan')
+    
+    st.warning('Pilih Kolom Keluhan')
+    with st.form(key='my_form'):
+        st.selectbox(   label='Pilih column keluhan pasien',
+                        options=[None]+st.session_state.df_up.columns.tolist(),
+                        help='Pilih column yang akan diekstrak',
+                        index=0, key='col')
+        st.write('Parameter (default)')
+        with st.expander("Merubah Nilai Parameter"):
+            st.text_input(  label='Parameter Sakit',
+                            value=st.session_state.param_sakit,
+                            help='Perameter sakit: tanda/kata yang mewakili target/gejala', 
+                            key='sakit')
+            st.text_input(  label='Parameter Awal', 
+                            value=st.session_state.param_awal,
+                            help='Perameter awal: tanda/kata yang letaknya berada sebelum target/gejala', 
+                            key='awal')
+            st.text_input(  label='Parameter Akhir', 
+                            value=st.session_state.param_akhir,
+                            help='Perameter akhir: tanda/kata yang letaknya berada setelah target/gejala', 
+                            key='akhir')
+            st.text_input(  label='Parameter Negatif', 
+                            value=st.session_state.param_neg,
+                            help='tanda/kata yang menandakan bahwa pasien tidak memiliki gejala',
+                            key='neg')
+        submit = st.form_submit_button(label='Extract', on_click=update_counter)
 
     # Extrak Gejala
     if submit:
