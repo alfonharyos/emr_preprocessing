@@ -14,7 +14,7 @@ def up_file(uploaded_file):
             df = pd.read_csv(uploaded_file)
             typ = 'csv'
         elif (uploaded_file.name[-3:] == 'xls') or (uploaded_file.name[-4:] == 'xlsx'):
-            df = pd.read_excel(uploaded_file) 
+            df = pd.read_excel(uploaded_file, engine='openpyxl') 
             typ = 'xlsx'
         df = df.astype(str)
     return df, typ
@@ -45,7 +45,7 @@ uploaded_file = st.file_uploader('Choose EMR file',
                                 type=['csv','xlsx', 'xls'],
                                 accept_multiple_files=False)
 
-if uploaded_file != None:   
+if uploaded_file:   
 
     if 'df_up' not in st.session_state:
         st.session_state.df_up, st.session_state.data_type = up_file(uploaded_file)
