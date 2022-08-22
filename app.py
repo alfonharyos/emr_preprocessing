@@ -51,13 +51,14 @@ if uploaded_file != None:
         st.session_state.df_up, st.session_state.data_type = up_file(uploaded_file)
 
     st.header('EMR Display')
-    if 'extract_gejala' in st.session_state.df_up.columns: 
-        AgGrid(st.session_state.df_up.\
-                drop(['extract_gejala'], axis=1).\
-                reset_index(), theme='streamlit')
-    else: 
-        AgGrid(st.session_state.df_up.\
-                reset_index(), theme='streamlit')
+    with st.spinner('Wait for display...'):
+        if 'extract_gejala' in st.session_state.df_up.columns: 
+            AgGrid(st.session_state.df_up.\
+                    drop(['extract_gejala'], axis=1).\
+                    reset_index(), theme='streamlit')
+        else: 
+            AgGrid(st.session_state.df_up.\
+                    reset_index(), theme='streamlit')
 
     # preprocessing
     if 'keluhan' not in st.session_state:
