@@ -1,6 +1,7 @@
 import pandas as pd
 import streamlit as st
 import xlsxwriter
+import openpyxl
 from filter_emr.filter import preprocess as pp
 from io import BytesIO
 from st_aggrid import AgGrid
@@ -13,8 +14,11 @@ def up_file(uploaded_file):
         if uploaded_file.name[-3:] == 'csv':
             df = pd.read_csv(uploaded_file)
             typ = 'csv'
-        elif (uploaded_file.name[-3:] == 'xls') or (uploaded_file.name[-4:] == 'xlsx'):
+        elif uploaded_file.name[-3:] == 'xls':
             df = pd.read_excel(uploaded_file) 
+            typ = 'xls'
+        elif uploaded_file.name[-4:] == 'xlsx':
+            df = pd.read_excel(uploaded_file, engine="openpyxl") 
             typ = 'xlsx'
         df = df.astype(str)
     return df, typ
