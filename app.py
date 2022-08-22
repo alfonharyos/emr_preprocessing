@@ -5,7 +5,7 @@ from filter_emr.filter import preprocess as pp
 from io import BytesIO
 from st_aggrid import AgGrid
 
-PAGE_CONFIG = {"page_title":"EMR-Preprocessing-App", "page_icon":"hospital", "layout":"centered"}
+PAGE_CONFIG = {"page_title":"EMR-Preprocessing-App", "page_icon":"hospital", "layout":"wide"}
 st.set_page_config(**PAGE_CONFIG)
 
 def up_file(uploaded_file):
