@@ -47,12 +47,13 @@ uploaded_file = st.file_uploader('Choose EMR file',
 
 if uploaded_file:   
 
-    if 'df_up' not in st.session_state:
-        st.session_state.df_up, st.session_state.data_type = up_file(uploaded_file)
-
+#     if 'df_up' not in st.session_state:
+#         st.session_state.df_up, st.session_state.data_type = up_file(uploaded_file)
+    df_up, data_type = up_file(uploaded_file)
     st.header('EMR Display')
     with st.spinner('Wait for display...'):
-        AgGrid(st.session_state.df_up.reset_index(), theme='streamlit')
+        AgGrid(df_up.reset_index(), theme='streamlit'
+#         AgGrid(st.session_state.df_up.reset_index(), theme='streamlit')
 #         st.dataframe(st.session_state.df_up.reset_index())
         
 #     # preprocessing
