@@ -5,6 +5,9 @@ from filter_emr.filter import preprocess as pp
 from io import BytesIO
 from st_aggrid import AgGrid
 
+PAGE_CONFIG = {"page_title":"EMR-Preprocessing-App", "page_icon":"hospital", "layout":"centered"}
+st.set_page_config(**PAGE_CONFIG)
+
 def up_file(uploaded_file):
     with st.spinner('Wait for it...'):
         if uploaded_file.name[-3:] == 'csv':
