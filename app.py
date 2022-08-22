@@ -52,10 +52,7 @@ if uploaded_file != None:
 
     st.header('EMR Display')
     with st.spinner('Wait for display...'):
-        try: 
-            AgGrid(st.session_state.df_up.drop(['extract_gejala'], axis=1).reset_index(), theme='streamlit')
-        except ValueError: 
-            AgGrid(st.session_state.df_up.reset_index(), theme='streamlit')
+        AgGrid(st.session_state.df_up.reset_index(), theme='streamlit')
 
     # preprocessing
     if 'keluhan' not in st.session_state:
