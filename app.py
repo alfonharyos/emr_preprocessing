@@ -56,15 +56,11 @@ if uploaded_file != None:
             # AgGrid(st.session_state.df_up.\
             #         drop(['extract_gejala'], axis=1).\
             #         reset_index(), theme='streamlit')
-            st.dataframe(st.session_state.df_up.\
-                            drop(['extract_gejala'], axis=1).\
-                            reset_index())
+            st.dataframe(st.session_state.df_up.drop(['extract_gejala'], axis=1).reset_index())
         else: 
             # AgGrid(st.session_state.df_up.\
             #         reset_index(), theme='streamlit')
-            st.dataframe(st.session_state.df_up.\
-                            drop(['extract_gejala'], axis=1).\
-                            reset_index())
+            st.dataframe(st.session_state.df_up.reset_index())
 
     # preprocessing
     if 'keluhan' not in st.session_state:
@@ -106,9 +102,7 @@ if uploaded_file != None:
         if 'df_pp' not in st.session_state:
             df_emr = st.session_state.df_up
             with st.spinner('Wait for it...'):
-                df_emr['extract_gejala'] = df_emr[st.session_state.keluhan].\
-                                                    apply(lambda x: pp().\
-                                                    get_symptoms(str(x),
+                df_emr['extract_gejala'] = df_emr[st.session_state.keluhan].apply(lambda x: pp().get_symptoms(str(x),
                                                     st.session_state.param_sakit,
                                                     st.session_state.param_awal,
                                                     st.session_state.param_akhir,
