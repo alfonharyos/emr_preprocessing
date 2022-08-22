@@ -52,8 +52,9 @@ if uploaded_file != None:
 
     st.header('EMR Display')
     with st.spinner('Wait for display...'):
-        AgGrid(st.session_state.df_up.reset_index(), theme='streamlit')
-
+#         AgGrid(st.session_state.df_up.reset_index(), theme='streamlit')
+        st.dataframe(st.session_state.df_up.reset_index())
+        
     # preprocessing
     if 'keluhan' not in st.session_state:
         st.session_state.keluhan = None
