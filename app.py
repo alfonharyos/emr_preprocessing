@@ -64,11 +64,12 @@ if uploaded_file:
 
     if 'df_up' not in st.session_state:
         st.session_state.df_up, st.session_state.data_type = up_file(uploaded_file)
-        
+
+# ------------------------ OUT of MEMORY --------------------
 #     st.header('EMR Display')
 #     with st.spinner('Wait for display...'):
-#         display_table(st.session_state.df_up.reset_index())
-    
+#         display_table(st.session_state.df_up.reset_index()) 
+# ------------------------------------------------------------ 
         
     # preprocessing
     if 'keluhan' not in st.session_state:
@@ -131,3 +132,5 @@ if uploaded_file:
             data=st.session_state.dl_data,
             file_name='EMR_preprocessing.'+st.session_state.data_type
         )
+        
+   else: st.session_state.df_pp=None
