@@ -24,6 +24,10 @@ def up_file(uploaded_file):
         df = df.astype(str)
     return df, typ
 
+def del_ss():
+    for key in st.session_state.keys():
+        del st.session_state[key]
+
 def display_table(df: pd.DataFrame) -> AgGrid:
     gb = GridOptionsBuilder.from_dataframe(df)
     gb.configure_pagination(enabled=True,)
@@ -40,6 +44,7 @@ def update_counter():
         st.session_state.param_awal = st.session_state.awal
         st.session_state.param_akhir = st.session_state.akhir
         st.session_state.param_neg = st.session_state.neg
+        st.session_state.submit_count+=1
 
 def convert_df(df, type):
     if type == 'csv':
@@ -73,11 +78,12 @@ if uploaded_file:
         
     # preprocessing
     if 'keluhan' not in st.session_state:
-        st.session_state.keluhan = None
         st.session_state.param_sakit = 'luka;sakit;nyeri'
         st.session_state.param_awal = 'diagnosa;keluhan;dengan;riwayat;kontrol'
         st.session_state.param_akhir = 'sejak;+'
-        st.session_state.param_neg = 'tidak;-'   
+        st.session_state.param_neg = 'tidak;-'  
+        st.session_state.submit_count = 0
+
     try:
         with st.form(key='my_form'):
             st.selectbox(   label='Pilih column keluhan pasien',
@@ -107,6 +113,9 @@ if uploaded_file:
         st.warning('Pilih Kolom Keluhan')
 
     # Extrak Gejala
+    if submit and (st.session_state.submit_count>1):
+        del st.session_state.df_pp
+
     if submit:
         if 'df_pp' not in st.session_state:
             df_emr = st.session_state.df_up
@@ -121,7 +130,7 @@ if uploaded_file:
                                                     5))
                 st.session_state.df_pp = df_emr
                 st.session_state.dl_data = convert_df(df_emr, st.session_state.data_type)
-
+    
     if 'df_pp' in st.session_state: 
         with st.spinner('Wait for display...'):
             df_emr_pp = st.session_state.df_pp
@@ -132,3 +141,6 @@ if uploaded_file:
             data=st.session_state.dl_data,
             file_name='EMR_preprocessing.'+st.session_state.data_type
         )
+else:
+    st.warning('you need to upload a csv or excel file.')
+    del_ss()
