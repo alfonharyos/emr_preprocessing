@@ -132,5 +132,3 @@ if uploaded_file:
             data=st.session_state.dl_data,
             file_name='EMR_preprocessing.'+st.session_state.data_type
         )
-        
-   else: st.session_state.df_pp=None
