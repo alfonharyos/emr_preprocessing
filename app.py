@@ -25,14 +25,12 @@ def up_file(uploaded_file):
     return df, typ
 
 def display_table(df: pd.DataFrame) -> AgGrid:
-    # Configure AgGrid options
     gb = GridOptionsBuilder.from_dataframe(df)
     gb.configure_pagination(enabled=True,)
     gb.configure_selection('single')
     return AgGrid(
         df,
         gridOptions=gb.build(), theme='streamlit',
-        # this override the default VALUE_CHANGED
         update_mode=GridUpdateMode.MODEL_CHANGED
         )
 
@@ -64,12 +62,12 @@ uploaded_file = st.file_uploader('Choose EMR file',
 
 if uploaded_file:   
 
-    if 'df_up' not in st.session_state:
-        st.session_state.df_up, st.session_state.data_type = up_file(uploaded_file)
+#     if 'df_up' not in st.session_state:
+#         st.session_state.df_up, st.session_state.data_type = up_file(uploaded_file)
         
-    st.header('EMR Display')
-    with st.spinner('Wait for display...'):
-        display_table(st.session_state.df_up.reset_index())
+#     st.header('EMR Display')
+#     with st.spinner('Wait for display...'):
+#         display_table(st.session_state.df_up.reset_index())
     
         
     # preprocessing
