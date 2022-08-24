@@ -66,10 +66,9 @@ uploaded_file = st.file_uploader('Choose EMR file',
                                 accept_multiple_files=False)
 
 if uploaded_file:   
-
     if 'df_up' not in st.session_state:
         st.session_state.df_up, st.session_state.data_type = up_file(uploaded_file)
-        
+
     # preprocessing
     if 'keluhan' not in st.session_state:
         st.session_state.param_sakit = 'luka;sakit;nyeri'
@@ -80,8 +79,12 @@ if uploaded_file:
 
     try:
         with st.form(key='my_form'):
+            if any(st.session_state.df_up):
+                df_columns=st.session_state.df_up.columns.tolist()
+            else:
+                df_columns=st.session_state.df_pp.columns.tolist()[:-1]
             st.selectbox(   label='Pilih column keluhan pasien',
-                            options=[None]+st.session_state.df_up.columns.tolist(),
+                            options=[None]+df_columns,
                             help='Pilih column yang akan diekstrak',
                             index=0, key='col')
             st.write('Parameter (default)')
@@ -112,29 +115,26 @@ if uploaded_file:
 
     if submit:
         if 'df_pp' not in st.session_state:
-            df_emr = st.session_state.df_up
+            st.session_state.df_pp = st.session_state.df_up
+            del st.session_state.df_up
             with st.spinner('Wait for it...'):
-                df_emr['extract_gejala'] = df_emr[st.session_state.keluhan].\
-                                                    apply(lambda x: pp().\
-                                                    get_symptoms(str(x),
-                                                    st.session_state.param_sakit,
-                                                    st.session_state.param_awal,
-                                                    st.session_state.param_akhir,
-                                                    st.session_state.param_neg,
-                                                    5))
-                st.session_state.df_pp = df_emr
-                st.session_state.dl_data = convert_df(df_emr, st.session_state.data_type)
+                st.session_state.df_pp['extract_gejala'] = st.session_state.df_pp[st.session_state.keluhan].\
+                                                            apply(lambda x: pp().\
+                                                            get_symptoms(str(x),
+                                                            st.session_state.param_sakit,
+                                                            st.session_state.param_awal,
+                                                            st.session_state.param_akhir,
+                                                            st.session_state.param_neg,
+                                                            5))
+                st.session_state.dl_data = convert_df(st.session_state.df_pp, st.session_state.data_type)
     
     if 'df_pp' in st.session_state: 
         with st.spinner('Wait for display...'):
-            df_emr_pp = st.session_state.df_pp
-            display_table(df_emr_pp[[st.session_state.keluhan,'extract_gejala']].astype(str).reset_index())
-
-        st.download_button(
-            label="Download Data",
-            data=st.session_state.dl_data,
-            file_name='EMR_preprocessing.'+st.session_state.data_type
-        )
+            display_table(st.session_state.df_pp[[st.session_state.keluhan,'extract_gejala']].astype(str).reset_index())
+        st.download_button( label="Download Data",
+                            data=st.session_state.dl_data,
+                            file_name='EMR_preprocessing.'+st.session_state.data_type)
 else:
     st.warning('you need to upload a csv or excel file.')
     del_ss()
+    
