@@ -32,6 +32,7 @@ class preprocess:
         else : w=w
         txt.append(w)
       text = ' '.join(txt)
+    # normalisasi kata yg berkaitan dengan gejala
     text = text.replace("dgn", "dengan")
     text = text.replace("dengan", ", dengan ")
     text = text.replace("riwayat", "riwayat ")
@@ -51,19 +52,20 @@ class preprocess:
     return text
 
   def stop_w(self,text,param_s,param_d,param_b,param_n):
+    list_chr_penting = ['ulu', 'ibu', 'di'] # singkatan 2-3 char yang penting(tidak dihapus)
     # stopword Indonesia
     with open('filter_emr/stopword-id_tala.txt', 'r') as s:                           
       stopword = [line.strip() for line in s]
     with open('filter_emr/add_stopword-id.txt', 'r') as add_s:
       stopword = stopword+[line.strip() for line in add_s]
-      stopword = [word for word in stopword if word not in param_s+param_d+param_b+param_n]
+      stopword = [word for word in stopword if word not in param_s+param_d+param_b+param_n+list_chr_penting]
     # singkatan yg tidak perlu
-    list_chr = ['yg', 'di', 'yg ll', 'dr', 'sda', 'rs']
+    list_chr = ['yg', 'yg ll', 'dr', 'sda', 'rs']
     txt = ' '.join([word for word in text.split() if word not in list_chr+stopword])
     return txt
 
   def ubah(self,text):
-    
+    list_chr_penting = ['ulu', 'ibu', 'di'] # singkatan 2-3 char yang penting(tidak dihapus)
     singkatan_dict = json.load( open( "filter_emr/singkatan_dict.json" ) ) # open dictionary
 
     list_acro = list()
@@ -72,12 +74,12 @@ class preprocess:
 
     txt = []
     for w in text.split():
-      if (len(w) == 3 or len(w) == 2) and not w.isnumeric():
+      if (len(w) == 3 or len(w) == 2) and not w.isnumeric() and w not in list_chr_penting:
         if w in list_acro:
-          w = singkatan_dict.get(w, w)
+          w = singkatan_dict.get(w, w) # merubah singkatan
         elif w not in list_acro : w=None
       elif w in list_acro:
-        w = singkatan_dict.get(w, w)
+        w = singkatan_dict.get(w, w) # merubah singkatan
       else: w=w
       txt.append(w)
     txt = ' '.join(list(filter(None, txt)))
@@ -92,34 +94,9 @@ class preprocess:
     for s in text:
       # Memilah kalimat yang tidak mengandung negasi
       if any(set(s.split()) & set(param_n)) == False:
-        
-        # Parameter Sakit terletak sebelum gejala
-        if any(set(s.split()) & set(param_s)) == True:
-          # Mencari index parameter yang paling dekat dengan target
-          ind=[]
-          for p in param_s:
-            if p in s.split():
-              indices = [index for index, element in enumerate(s.split()) if element == p]
-              ind.extend(indices)
-          ind=max(ind)
-          # ambil n kata setelah parameter
-          try:
-            x = ind+n
-            s = ' '.join(s.split()[ind:x])
-            # hapus paramter lain yang ada di dalam kalimat
-            for pb in param_b:
-              if pb in s:
-                s = s.split()
-                ind = s.index(pb)
-                # hapus kata" setelah parameter
-                del s[ind:]
-                s = ' '.join(s)
-            txt.append(s)
-          except ValueError:
-            pass
 
         # Parameter terletak setelah gejala
-        elif any(set(s.split()) & set(param_b)) == True:
+        if any(set(s.split()) & set(param_b)) == True:
           for p in param_b:
             if p in s:
               try:
@@ -142,18 +119,21 @@ class preprocess:
                 pass
 
         # Parameter terletak sebelum gejala
-        elif any(set(s.split()) & set(param_d)) == True:
+        elif any(set(s.split()) & set(param_d+param_s)) == True:
           # Mencari index parameter yang paling dekat dengan target
           ind=[]
-          for p in param_d:
-            if p in s.split():
+          for p in param_d+param_s:
+            if p in s:
               indices = [index for index, element in enumerate(s.split()) if element == p]
               ind.extend(indices)
           ind=max(ind)
           # ambil n kata setelah parameter
           try:
             x = ind+n
-            s = ' '.join(s.split()[ind+1:x+1])
+            if s.split()[ind] in param_d:
+              s = ' '.join(s.split()[ind+1:x+1])
+            else:
+              s = ' '.join(s.split()[ind:x])
             # hapus paramter lain yang ada di dalam kalimat
             for pb in param_b:
               if pb in s:
@@ -165,8 +145,6 @@ class preprocess:
             txt.append(s)
           except ValueError:
             pass
-
-          
 
     txt = list(filter(None, txt))
     return txt
