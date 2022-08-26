@@ -96,7 +96,7 @@ class preprocess:
       if any(set(s.split()) & set(param_n)) == False:
 
         # Parameter terletak setelah gejala
-        if any(set(s.split()) & set(param_b)) == True:
+        if any(set(s.split()) & set(param_b+param_s)) == True:
           for p in param_b:
             if p in s:
               try:
@@ -105,7 +105,10 @@ class preprocess:
                 # ambil n kata sebelum parameter
                 x = ind-n
                 if x < 0 : x=0
-                s = ' '.join(s.split()[x:ind])
+                if s.split()[ind] in param_s:
+                  s = ' '.join(s.split()[x:ind+1])
+                else:
+                  s = ' '.join(s.split()[x:ind])
                 # hapus paramter lain yang ada di dalam kalimat
                 for pd in param_d:
                   if pd in s:
@@ -149,7 +152,11 @@ class preprocess:
     txt = list(filter(None, txt))
     return txt
 
-  def get_symptoms(self, text:str,param_s, param_d, param_b ,param_n,n:int=5):
+  def get_symptoms( self, text:str,
+                    param_s:str='luka;nyeri;sakit', 
+                    param_d:str='diagnosa;keluhan;dengan;riwayat', 
+                    param_b:str='sejak;+',
+                    param_n:str='tidak;-', n:int=5):
     param_s = [w.strip() for w in param_s.split(';')]
     param_d = [w.strip() for w in param_d.split(';')]
     param_b = [w.strip() for w in param_b.split(';')]
