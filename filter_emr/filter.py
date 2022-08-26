@@ -11,15 +11,36 @@ class preprocess:
   def del_punc(self,text):
     text = text.replace("x000d", "")
     text = re.sub(r'[!"#$%&\'()*/:;<=>?@[\]^_`{|}~]+', "", text)
+    # replace newline ==> koma
+    text = text.replace("\n",",")
     return text
 
   def del_num(self,text):
     text = re.sub(r'\b[0-9]+\b\s*', '', text)
     return text
   
+  def ubah(self,text):
+    list_chr_penting = ['ulu', 'ibu', 'di', 'dg', 'riw'] # singkatan 2-3 char yang penting(tidak dihapus)
+    singkatan_dict = json.load( open( "filter_emr/singkatan_dict.json" ) ) # open dictionary
+
+    list_acro = list()
+    for key in singkatan_dict.keys():
+      list_acro.append(key)
+
+    txt = []
+    for w in text.split():
+      if (len(w) == 3 or len(w) == 2) and not w.isnumeric() and w not in list_chr_penting:
+        if w in list_acro:
+          w = singkatan_dict.get(w, w) # merubah singkatan
+        elif w not in list_acro : w=None
+      elif w in list_acro:
+        w = singkatan_dict.get(w, w) # merubah singkatan
+      else: w=w
+      txt.append(w)
+    txt = ' '.join(list(filter(None, txt)))
+    return txt.lower()
+
   def replace_param(self,text):
-    # replace newline ==> koma
-    text = text.replace("\n",",")
     # memberi space pada parameter penentuan gejala sebelum melakukan pembagian gejala
     # pemberian space pada parameter dengan menggunakan metode berbeda karena dg terkandung juga didalam dengan
     if 'dg' in text or 'riw' in text :
@@ -59,31 +80,8 @@ class preprocess:
     with open('filter_emr/add_stopword-id.txt', 'r') as add_s:
       stopword = stopword+[line.strip() for line in add_s]
       stopword = [word for word in stopword if word not in param_s+param_d+param_b+param_n+list_chr_penting]
-    # singkatan yg tidak perlu
-    list_chr = ['yg', 'yg ll', 'dr', 'sda', 'rs']
-    txt = ' '.join([word for word in text.split() if word not in list_chr+stopword])
+    txt = ' '.join([word for word in text.split() if word not in stopword])
     return txt
-
-  def ubah(self,text):
-    list_chr_penting = ['ulu', 'ibu', 'di'] # singkatan 2-3 char yang penting(tidak dihapus)
-    singkatan_dict = json.load( open( "filter_emr/singkatan_dict.json" ) ) # open dictionary
-
-    list_acro = list()
-    for key in singkatan_dict.keys():
-      list_acro.append(key)
-
-    txt = []
-    for w in text.split():
-      if (len(w) == 3 or len(w) == 2) and not w.isnumeric() and w not in list_chr_penting:
-        if w in list_acro:
-          w = singkatan_dict.get(w, w) # merubah singkatan
-        elif w not in list_acro : w=None
-      elif w in list_acro:
-        w = singkatan_dict.get(w, w) # merubah singkatan
-      else: w=w
-      txt.append(w)
-    txt = ' '.join(list(filter(None, txt)))
-    return txt.lower()
 
   def split_txt(self,text):
     text = re.split('[.,]',text)
@@ -164,9 +162,9 @@ class preprocess:
     text = self.low(text)
     text = self.del_punc(text)
     text = self.del_num(text)
+    text = self.ubah(text)
     text = self.replace_param(text)
     text = self.stop_w(text,param_s,param_d,param_b,param_n)
-    text = self.ubah(text)
     text = self.split_txt(text) 
     text = self.gejala(text,param_s,param_d,param_b,param_n,n)
     if text == []:
