@@ -66,7 +66,7 @@ def df_freq_gejala(df, diagnosa:str=None):
         df_wc = df.gejala.value_counts().rename_axis('gejala').reset_index(name='frekuensi')
     else:
         df = df.loc[df.diagnosa == diagnosa]
-        gejala_wc = ' '.join(df_wc.gejala)
+        gejala_wc = ' '.join(df.gejala)
         df_wc = df.gejala.value_counts().rename_axis('gejala').reset_index(name='frekuensi')
     return df_wc, gejala_wc
 
