@@ -1,5 +1,7 @@
-pandas==1.4.3
-streamlit==1.11.0
+matplotlib==3.5.3
 openpyxl==3.0.10
-XlsxWriter==3.0.3
+pandas==1.4.3
+streamlit==1.12.2
 streamlit-aggrid==0.3.2
+wordcloud==1.8.2.2
+XlsxWriter==3.0.3
