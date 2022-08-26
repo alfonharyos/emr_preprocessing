@@ -72,7 +72,7 @@ if uploaded_file:
     # preprocessing
     if 'keluhan' not in st.session_state:
         st.session_state.param_sakit = 'luka;sakit;nyeri'
-        st.session_state.param_awal = 'diagnosa;keluhan;dengan;riwayat;kontrol'
+        st.session_state.param_awal = 'diagnosa;keluhan;dengan;riwayat'
         st.session_state.param_akhir = 'sejak;+'
         st.session_state.param_neg = 'tidak;-'  
         st.session_state.submit_count = 0
