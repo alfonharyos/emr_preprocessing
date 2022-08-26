@@ -95,34 +95,8 @@ class preprocess:
       # Memilah kalimat yang tidak mengandung negasi
       if any(set(s.split()) & set(param_n)) == False:
 
-        # Parameter terletak setelah gejala
-        if any(set(s.split()) & set(param_b+param_s)) == True:
-          for p in param_b:
-            if p in s:
-              try:
-                # mencari index dari parameter di dalam kalimat
-                ind = s.split().index(p)
-                # ambil n kata sebelum parameter
-                x = ind-n
-                if x < 0 : x=0
-                if s.split()[ind] in param_s:
-                  s = ' '.join(s.split()[x:ind+1])
-                else:
-                  s = ' '.join(s.split()[x:ind])
-                # hapus paramter lain yang ada di dalam kalimat
-                for pd in param_d:
-                  if pd in s:
-                    s = s.split()
-                    ind = s.index(pd)
-                    # hapus kata" sebelum parameter
-                    del s[0:ind+1]
-                    s = ' '.join(s)
-                txt.append(s)
-              except ValueError:
-                pass
-
         # Parameter terletak sebelum gejala
-        elif any(set(s.split()) & set(param_d+param_s)) == True:
+        if any(set(s.split()) & set(param_d+param_s)) == True:
           # Mencari index parameter yang paling dekat dengan target
           ind=[]
           for p in param_d+param_s:
@@ -149,6 +123,32 @@ class preprocess:
           except ValueError:
             pass
 
+        # Parameter terletak setelah gejala
+        elif any(set(s.split()) & set(param_b+param_s)) == True:
+          for p in param_b:
+            if p in s:
+              try:
+                # mencari index dari parameter di dalam kalimat
+                ind = s.split().index(p)
+                # ambil n kata sebelum parameter
+                x = ind-n
+                if x < 0 : x=0
+                if s.split()[ind] in param_s:
+                  s = ' '.join(s.split()[x:ind+1])
+                else:
+                  s = ' '.join(s.split()[x:ind])
+                # hapus paramter lain yang ada di dalam kalimat
+                for pd in param_d:
+                  if pd in s:
+                    s = s.split()
+                    ind = s.index(pd)
+                    # hapus kata" sebelum parameter
+                    del s[0:ind+1]
+                    s = ' '.join(s)
+                txt.append(s)
+              except ValueError:
+                pass
+        
     txt = list(filter(None, txt))
     return txt
 
