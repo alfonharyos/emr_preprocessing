@@ -2,8 +2,11 @@ import pandas as pd
 import streamlit as st
 import xlsxwriter
 import openpyxl
-from filter_emr.filter import preprocess as pp
 from io import BytesIO
+from filter_emr.filter import preprocess as pp
+from term_freq import freq_gejala
+from wordcloud import WordCloud
+from matplotlib import pyplot as plt
 from st_aggrid import AgGrid, GridOptionsBuilder, GridUpdateMode
 
 
@@ -30,7 +33,7 @@ def del_ss():
 
 def display_table(df: pd.DataFrame) -> AgGrid:
     gb = GridOptionsBuilder.from_dataframe(df)
-    gb.configure_pagination(enabled=True,)
+    gb.configure_pagination(enabled=True)
     gb.configure_selection('single')
     return AgGrid(
         df,
@@ -56,6 +59,23 @@ def convert_df(df, type):
         writer.save() 
         df = output.getvalue()
     return df
+
+def df_freq_gejala(df, diagnosa:str=None):
+    if diagnosa == None:
+        gejala_wc = ' '.join(df.gejala)
+        df_wc = df.gejala.value_counts().rename_axis('gejala').reset_index(name='frekuensi')
+    else:
+        df_wc = df.loc[df.diagnosa == diagnosa]
+        gejala_wc = ' '.join(df_wc.gejala)
+    return df_wc, gejala_wc
+
+def visual_wordcloud(gejala_wc):
+    wordcloud = WordCloud(background_color='white', width=1000, height=400).generate(gejala_wc)
+    # Generate plot
+    fig, ax = plt.subplots()
+    ax.imshow(wordcloud)
+    plt.axis("off")
+    st.pyplot(fig)
 
 
 st.title(' EMR Preprocessing ')
@@ -127,14 +147,48 @@ if uploaded_file:
                                                             st.session_state.param_neg,
                                                             5))
                 st.session_state.dl_data = convert_df(st.session_state.df_pp, st.session_state.data_type)
-    
+        
     if 'df_pp' in st.session_state: 
         with st.spinner('Wait for display...'):
             display_table(st.session_state.df_pp[[st.session_state.keluhan,'extract_gejala']].astype(str).reset_index())
         st.download_button( label="Download Data",
                             data=st.session_state.dl_data,
                             file_name='EMR_preprocessing.'+st.session_state.data_type)
+        
+        st.header('Display Gejala')
+
+        def del_freq():
+            try: del st.session_state.freq
+            except: pass
+
+        st.selectbox(label='Pilih Kolom Diagnosa/ICD',
+                    options=[None]+df_columns,
+                    help='Pilih diagnosa/ICD',
+                    key='col_diagnosis', 
+                    on_change=del_freq())
+
+        if st.session_state.col_diagnosis != None:
+            if 'freq' not in st.session_state:
+                with st.spinner('Wait for it...'):
+                    st.session_state.freq = freq_gejala(st.session_state.df_pp, 'extract_gejala', st.session_state.col_diagnosis)
+
+            if any(st.session_state.freq):
+                with st.spinner('Wait for display...'):
+                    # Display Frekuensi gejala
+                    col1, col2 = st.columns([1, 3])
+                    with col1:
+                        st.subheader("Frekuensi Gejala")
+                        diagnosa = st.selectbox(label='Pilih Diagnosa',
+                                                options=[None]+st.session_state.freq.diagnosa.unique().tolist(),
+                                                help='Pilih diagnosa/ICD')
+                        df_wc, gejala_wc = df_freq_gejala(st.session_state.freq, diagnosa)
+                        display_table(df_wc.reset_index())
+
+                    with col2:
+                        st.subheader("WordCloud Frekuensi Gejala")
+                        visual_wordcloud(gejala_wc)
+
+
 else:
     st.warning('you need to upload a csv or excel file.')
     del_ss()
-    
